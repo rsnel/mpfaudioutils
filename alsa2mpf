@@ -1,0 +1,2 @@
+#!/bin/sh
+arecord -t raw -f U8 -r 8000 | raw2mpf

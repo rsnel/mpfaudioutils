@@ -1,0 +1,2 @@
+#!/bin/sh
+mpf2raw | aplay -t raw -f U8 -r 8000

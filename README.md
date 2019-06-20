@@ -1,0 +1,178 @@
+Transcode MPF-I(B) programs to and from audio
+=============================================
+
+Introduction
+------------
+
+The Micro-Professor MPF-I(B) is a single board computer based on the Z80 CPU
+manufactured by Multitech (which became Acer in 1987). For brevity we will call
+this machine by the short name MPF.
+
+The computer can communicate with the outside world using:
+* a keyboard
+* six 7+1 segment displays
+* a header that connects to the CPU bus
+* a header that connect to the optional Z80-CTC and/or Z80-PIO
+* audio line in, speaker and line out
+
+The MPF includes software to store and retrieve data throuh the audio
+interface and is originally designed to use a cassettedeck.  However, a normal
+PC with line out and mic in can also be used.
+
+This suite of programs enable you to translate between the audio file and a hex
+representation of the data sent to and from the MPF. It consists of
+raw2mpf, to convert and audio stream to hex text and mpf2raw to do the reverse.
+
+The programs attempt to follow the Unix philosophy (quote from Doug McIlroy
+(2003) in "The Art of Unix programming: Basics of the Unix Philosophy"): "Write
+programs that do one thing and do it well. Write programs that work together.
+Write programs to handle text streams, because that is a universal interface."
+
+
+Handling audio files 
+--------------------
+
+We use raw audio files: unsigned 8 bit with a samplerate of 8kHz.  Other formats
+must be converted by using, for example, sox(1).
+
+This text assumes you have a basic understanding of the `TAPE WR` and `TAPE RD`
+functionality of the MPF. These two functions are documented in the
+excellent manual of the MPF, which (among other useful information about
+the MPF) can be found at [http://electrickery.xs4all.nl/comp/mpf1/doc/].
+
+The basic commands `LOAD` and `SAVE` work in the same way. However, the basic
+filename (which is a decimal number from 0 to 255) is the second byte of the
+read filename. The first byte of the real filename is `0xba` for basic programs.
+Basic programs are expected to be loaded at `0x18e7`.
+
+To record a program from your MPF, connect the 'mic' output of the MPF
+to the 'mic' input of the PC. Set the MIC gain higher if the signal does not max
+out the dynamic range. Start recording just before pressing 'GO' on the MPF.
+
+    $ arecord -t raw -f U8 -r 8000 data.raw
+
+To play a program to your MPF, connect the 'ear' input of the MPF to the
+left channel of the line-out of your PC. Set the output volume to max. Start the
+'TAPE RD' function of the MPF and enter the following command:
+
+    $ aplay -t raw -f U8 -r 8000 data.raw
+
+
+Compiling and installing
+------------------------
+
+The commands
+
+    $ make
+    # make install
+
+should suffice. The programs are installed in /usr/local/bin
+
+
+Using raw2mpf and mpf2raw
+-------------------------
+
+A list of examens reveals all the usecases of raw2mpf and mpf2raw.
+
+To extract programs from an audiostream you can do:
+
+    $ raw2mpf < data.raw > programs.mpf
+
+To do the reverse you do:
+
+    $ mpf2raw < programs.mpf > data.raw
+
+To cleanup a recording:
+
+    $ raw2mpf < dirty.raw | mpf2raw > clean.raw
+
+To record from the MPF live, terminate with ^C:
+
+    $ arecord -t raw -f U8 -r 8000 | raw2mpf > programs.mpf
+
+And do the reverse:
+
+    $ mpf2raw < programs.mpf | aplay -t raw -f U8 -r 8000
+
+For convenience mpf2alsa and alsa2mpf are also provided. Record:
+
+    $ alsa2mpf > programs.mpf   # terminate with ^C
+
+Play to MPF:
+
+    $ mpf2alsa < programs.mpf
+
+
+.mpf file format
+----------------
+
+The format of .mpf files is very simple. Each line represents a program, it looks like:
+
+xxxx/yyyy:zzzzzzzz....\n
+
+xxxx is the hexadecimal 'filename'
+yyyy is the hexadecimal loading address
+zzzzzz is an even number of hexadecial digits that represent the data
+
+For example:
+
+1234/1800:0076
+
+is a program with filename 0x1234
+0x1800 00 nop
+0x1801 76 halt
+
+
+Audio format
+------------
+
+The MPF comes with a detailed manual that explains the format in which the
+data is written to (and read from) tape. 
+
+Here is a short version of the spec. Every program starts with a `LEAD_SYNC`,
+followed by seven bytes of header info, then a `MID_SYNC`, followed by all the
+actual `DATA` bytes and, in closing, a `TAIL_SYNC`. In detail:
+
+`LEAD_SYNC`: 4 seconds of 1kHz
+
+`HEADER`:
+2 bytes `filename`
+2 bytes `first_address`
+2 bytes `last_address` (inclusive)
+1 byte `checksum` (sum of all bytes in data section)
+
+`MID_SYNC`:
+2 seconds of 2kHz
+
+`DATA`:
+bytes
+
+`TAIL_SYNC`:
+2 seconds of 2kHz
+
+All the information is encoding using two tones:
+
+1kHz: one period of tone@8kHz U8, 1ms; `O: FF FF FF FF 00 00 00 00`
+2kHz: two periods of tone @8kHz U8, 1ms; `X: FF FF 00 00 FF FF 00 00`
+
+Bits are encoded as below:
+
+    0: XXO
+    1: XOO
+
+And bytes are encoded as:
+
+start bit (0)
+bit 0 t/m bit 7
+end bit (1)
+
+While the on tape format has some redundancy, it is not used by raw2mpf; it
+bails on the current program immediately if something is out of order.
+
+
+Example program
+---------------
+
+coffee.mpf prints COFFEE on the display, and waits for the user to press GO,
+if that happens the MONITOR is entered through RST 30h.
+
