@@ -134,7 +134,7 @@ The MPF comes with a detailed manual that explains the format in which the
 data is written to (and read from) tape. 
 
 Here is a short version of the spec. Every program starts with a `LEAD_SYNC`,
-followed by seven bytes of header info, then a `MID_SYNC`, followed by all the
+followed by seven bytes of `HEADER` info, then a `MID_SYNC`, followed by all the
 actual `DATA` bytes and, in closing, a `TAIL_SYNC`. In detail:
 
     LEAD_SYNC: 4 seconds of 1kHz
