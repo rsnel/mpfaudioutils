@@ -16,7 +16,7 @@ The computer can communicate with the outside world using:
 * a header that connect to the optional Z80-CTC and/or Z80-PIO
 * audio line in, speaker and line out
 
-The MPF includes software to store and retrieve data throuh the audio interface
+The MPF includes software to store and retrieve data through the audio interface
 and is originally designed to use a cassetterecorder. However, a normal PC with
 line out and mic in can also be used.
 
