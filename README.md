@@ -174,6 +174,6 @@ bails on the current program immediately if something is out of order.
 Examples
 --------
 
-coffee.mpf prints COFFEE on the display, and waits for the user to press GO,
-if that happens the MONITOR is entered through RST 30h.
+`coffee.mpf` prints `COFFEE` on the display, and waits for the user to press `GO`,
+if that happens the monitor is entered through `RST 30h`.
 
