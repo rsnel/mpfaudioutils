@@ -33,7 +33,7 @@ Handling audio files
 --------------------
 
 We use raw audio files: unsigned 8 bit with a samplerate of 8kHz.  Other formats
-must be converted by using, for example, sox(1).
+must be converted by using, for example, sox(1). See below for some examples.
 
 This text assumes you have a basic understanding of the `TAPE WR` and `TAPE RD`
 functionality of the MPF. These two functions are documented in the
@@ -176,8 +176,12 @@ bails on the current program immediately if something is out of order.
 Examples
 --------
 
-`coffee.mpf` prints `COFFEE` on the display, and waits for the user to press `GO`,
+### `coffee.mpf`
+
+This program prints `COFFEE` on the display, and waits for the user to press `GO`,
 if that happens the monitor is entered through `RST 30h`.
+
+### sbprojects.net
 
 The website [https://www.sbprojects.net/projects/mpf1/] contains interesting
 programs for the MPF (with sourcecode and explanations). Each program is
@@ -191,6 +195,25 @@ For example:
 
 `dice6.mpf` can then be loaded in the usual way.
 
+### Sox
+
+The program `sox(1)` can be used to convert audiofiles to the correct format for
+`raw2mpf`. Suppose you have an `.mp3` of a program called `test.mp3`. It can be
+converted to our `.raw` format using:
+
+    $ sox test.mp3 -r 8000 -e unsigned-integer -c 1 -b 8 test.raw
+
+Be sure to have `libsox-fmt-mp3` installed if `sox` complains about `no handler
+for file extension .mp3`.
+
+Captured files can be converted to `.wav` for inspection in, for example,
+`audacity(1)`.
+
+$ sox -r 8000 -e unsigned-integer -c 1 -b 8 test.raw test.wav
+
+In a wave editor, the data can be read with relative ease. Two slow waves are a
+`0` and four slow waves are a `1`. Every byte consists of a start bit, `0`, then
+its own bits from 0 to 7, and a stop bit `1`.
 
 Resources
 ---------
