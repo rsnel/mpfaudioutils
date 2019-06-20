@@ -111,7 +111,7 @@ The format of .mpf files is very simple. Each line represents a program, it look
 
     xxxx is the hexadecimal 'filename'
     yyyy is the hexadecimal loading address
-    zzzzzz is an even number of hexadecial digits that represent the data
+    zzzzzz is an even number of hexadecimal digits that represent the data
 
 Note that there is no \r at the end of the line. We use the UNIX convention for
 text files. To convert, use `dos2unix(1)`.
