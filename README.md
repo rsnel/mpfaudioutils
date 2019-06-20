@@ -41,9 +41,9 @@ functionality of the MPF. These two functions are documented in the
 excellent manual of the MPF, which can be found on the internet. See the section
 Resources at the end of this README.
 
-The basic commands `LOAD` and `SAVE` work in the same way. However, the basic
+The BASIC commands `LOAD` and `SAVE` work in the same way. However, the BASIC
 filename (which is a decimal number from 0 to 255) is the second byte of the
-read filename. The first byte of the real filename is `0xba` for basic programs.
+read filename. The first byte of the real filename is `0xba` for BASIC programs.
 Basic programs are expected to be loaded at `0x18e7`.
 
 To record a program from your MPF, connect the 'mic' output of the MPF to the
