@@ -29,7 +29,7 @@ programs that do one thing and do it well. Write programs that work together.
 Write programs to handle text streams, because that is a universal interface."
 
 
-Handling audio files 
+Handling audio files
 --------------------
 
 We use raw audio files: unsigned 8 bit with a samplerate of 8kHz.  Other formats
@@ -45,15 +45,16 @@ filename (which is a decimal number from 0 to 255) is the second byte of the
 read filename. The first byte of the real filename is `0xba` for basic programs.
 Basic programs are expected to be loaded at `0x18e7`.
 
-To record a program from your MPF, connect the 'mic' output of the MPF
-to the 'mic' input of the PC. Set the MIC gain higher if the signal does not max
-out the dynamic range. Start recording just before pressing 'GO' on the MPF.
+To record a program from your MPF, connect the 'mic' output of the MPF to the
+'mic' input of the PC. Set the MIC gain higher if the signal does not max out
+the dynamic range. Start recording just before pressing 'GO' on the MPF.
+Terminate with `^C` after the MPF is done sending the audio.
 
     $ arecord -t raw -f U8 -r 8000 data.raw
 
 To play a program to your MPF, connect the 'ear' input of the MPF to the
 left channel of the line-out of your PC. Set the output volume to max. Start the
-'TAPE RD' function of the MPF and enter the following command:
+`TAPE RD` function of the MPF and enter the following command:
 
     $ aplay -t raw -f U8 -r 8000 data.raw
 
@@ -72,7 +73,7 @@ should suffice. The programs are installed in /usr/local/bin
 Using raw2mpf and mpf2raw
 -------------------------
 
-A list of examens reveals all the usecases of raw2mpf and mpf2raw.
+A list of examples reveals all the usecases of raw2mpf and mpf2raw.
 
 To extract programs from an audiostream you can do:
 
@@ -86,7 +87,7 @@ To cleanup a recording:
 
     $ raw2mpf < dirty.raw | mpf2raw > clean.raw
 
-To record from the MPF live, terminate with ^C:
+To record from the MPF live, terminate with `^C`:
 
     $ arecord -t raw -f U8 -r 8000 | raw2mpf > programs.mpf
 
@@ -131,7 +132,7 @@ Audio format
 ------------
 
 The MPF comes with a detailed manual that explains the format in which the
-data is written to (and read from) tape. 
+data is written to (and read from) tape.
 
 Here is a short version of the spec. Every program starts with a `LEAD_SYNC`,
 followed by seven bytes of `HEADER` info, then a `MID_SYNC`, followed by all the
