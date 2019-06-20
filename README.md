@@ -15,9 +15,9 @@ The computer can communicate with the outside world using:
 * a header that connect to the optional Z80-CTC and/or Z80-PIO
 * audio line in, speaker and line out
 
-The MPF includes software to store and retrieve data throuh the audio
-interface and is originally designed to use a cassettedeck. However, a normal
-PC with line out and mic in can also be used.
+The MPF includes software to store and retrieve data throuh the audio interface
+and is originally designed to use a cassetterecorder. However, a normal PC with
+line out and mic in can also be used.
 
 This suite of programs enable you to translate between the audio file and a hex
 representation of the data sent to and from the MPF. It consists of
@@ -37,7 +37,8 @@ must be converted by using, for example, sox(1). See below for some examples.
 
 This text assumes you have a basic understanding of the `TAPE WR` and `TAPE RD`
 functionality of the MPF. These two functions are documented in the
-excellent manual of the MPF.
+excellent manual of the MPF, which can be found on the internet. See the section
+Resources at the end of this README.
 
 The basic commands `LOAD` and `SAVE` work in the same way. However, the basic
 filename (which is a decimal number from 0 to 255) is the second byte of the
@@ -219,6 +220,7 @@ Resources
 ---------
 
 * [Wikipedia page of the MPF-I](https://en.wikipedia.org/wiki/Micro-Professor_MPF-I)
+* [MPF-I manual](http://www.1000bit.it/support/manuali/multitech/MPF-I-User's-manual.pdf)
 * [Projects for the MPF-I](https://www.sbprojects.net/projects/mpf1/)
 * [Manuals and ROM listings of the MPF-I](http://electrickery.xs4all.nl/comp/mpf1/doc/)
 * [old-computers.com page](http://www.old-computers.com/museum/computer.asp?c=479)
