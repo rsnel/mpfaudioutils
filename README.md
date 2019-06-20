@@ -16,7 +16,7 @@ The computer can communicate with the outside world using:
 * audio line in, speaker and line out
 
 The MPF includes software to store and retrieve data throuh the audio
-interface and is originally designed to use a cassettedeck.  However, a normal
+interface and is originally designed to use a cassettedeck. However, a normal
 PC with line out and mic in can also be used.
 
 This suite of programs enable you to translate between the audio file and a hex
@@ -37,8 +37,7 @@ must be converted by using, for example, sox(1).
 
 This text assumes you have a basic understanding of the `TAPE WR` and `TAPE RD`
 functionality of the MPF. These two functions are documented in the
-excellent manual of the MPF, which (among other useful information about
-the MPF) can be found at [http://electrickery.xs4all.nl/comp/mpf1/doc/].
+excellent manual of the MPF.
 
 The basic commands `LOAD` and `SAVE` work in the same way. However, the basic
 filename (which is a decimal number from 0 to 255) is the second byte of the
@@ -114,6 +113,9 @@ The format of .mpf files is very simple. Each line represents a program, it look
     yyyy is the hexadecimal loading address
     zzzzzz is an even number of hexadecial digits that represent the data
 
+Note that there is no \r at the end of the line. We use the UNIX convention for
+text files. To convert, use `dos2unix(1)`.
+
 For example:
 
     1234/1800:0076
@@ -177,3 +179,25 @@ Examples
 `coffee.mpf` prints `COFFEE` on the display, and waits for the user to press `GO`,
 if that happens the monitor is entered through `RST 30h`.
 
+The website [https://www.sbprojects.net/projects/mpf1/] contains interesting
+programs for the MPF (with sourcecode and explanations). Each program is
+available as `.asm`, `.hex`, `.lst` and `.mp3` file. I didn't have much luck
+with the `.mp3`, but I have written a small script to translate the `.hex` files
+to `.mpf` files.
+
+For example:
+
+    ./sbhex2mpf < dice6.hex > dice6.mpf
+
+`dice6.mpf` can then be loaded in the usual way.
+
+
+Resources
+---------
+
+* [Wikipedia page of the MPF-I](https://en.wikipedia.org/wiki/Micro-Professor_MPF-I)
+* [Projects for the MPF-I](https://www.sbprojects.net/projects/mpf1/)
+* [Manuals and ROM listings of the MPF-I](http://electrickery.xs4all.nl/comp/mpf1/doc/)
+* [old-computers.com page](http://www.old-computers.com/museum/computer.asp?c=479)
+* [vintagecomputer.net site about the MPF-I](http://www.vintagecomputer.net/fjkraan/comp/mpf1/)
+* [Rudi Niemeijer's page about the MPF-I (in Dutch)](http://www.rudiniemeijer.nl/micro-professor-mpf-1/)

@@ -1,0 +1,4 @@
+#!/bin/sh
+echo -n "0000/1800:"
+tr -d '\032\r\n'
+echo
