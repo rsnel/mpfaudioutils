@@ -108,19 +108,20 @@ Play to MPF:
 
 The format of .mpf files is very simple. Each line represents a program, it looks like:
 
-xxxx/yyyy:zzzzzzzz....\n
+    xxxx/yyyy:zzzzzzzz....\n
 
-xxxx is the hexadecimal 'filename'
-yyyy is the hexadecimal loading address
-zzzzzz is an even number of hexadecial digits that represent the data
+    xxxx is the hexadecimal 'filename'
+    yyyy is the hexadecimal loading address
+    zzzzzz is an even number of hexadecial digits that represent the data
 
 For example:
 
-1234/1800:0076
+    1234/1800:0076
 
-is a program with filename 0x1234
-0x1800 00 nop
-0x1801 76 halt
+is a program with filename `0x1234`
+
+    0x1800 00 nop
+    0x1801 76 halt
 
 
 Audio format
@@ -133,27 +134,27 @@ Here is a short version of the spec. Every program starts with a `LEAD_SYNC`,
 followed by seven bytes of header info, then a `MID_SYNC`, followed by all the
 actual `DATA` bytes and, in closing, a `TAIL_SYNC`. In detail:
 
-`LEAD_SYNC`: 4 seconds of 1kHz
+    LEAD_SYNC: 4 seconds of 1kHz
 
-`HEADER`:
-2 bytes `filename`
-2 bytes `first_address`
-2 bytes `last_address` (inclusive)
-1 byte `checksum` (sum of all bytes in data section)
+    HEADER:
+    2 bytes filename
+    2 bytes first_address
+    2 bytes last_address (inclusive)
+    1 byte checksum (sum of all bytes in data section)
 
-`MID_SYNC`:
-2 seconds of 2kHz
+    MID_SYNC:
+    2 seconds of 2kHz
 
-`DATA`:
-bytes
+    DATA:
+    bytes
 
-`TAIL_SYNC`:
-2 seconds of 2kHz
+    TAIL_SYNC:
+    2 seconds of 2kHz
 
 All the information is encoding using two tones:
 
-1kHz: one period of tone@8kHz U8, 1ms; `O: FF FF FF FF 00 00 00 00`
-2kHz: two periods of tone @8kHz U8, 1ms; `X: FF FF 00 00 FF FF 00 00`
+    1kHz: one period of tone@8kHz U8, 1ms; `O: FF FF FF FF 00 00 00 00`
+    2kHz: two periods of tone @8kHz U8, 1ms; `X: FF FF 00 00 FF FF 00 00`
 
 Bits are encoded as below:
 
@@ -162,16 +163,16 @@ Bits are encoded as below:
 
 And bytes are encoded as:
 
-start bit (0)
-bit 0 t/m bit 7
-end bit (1)
+    start bit (0)
+    bit 0 t/m bit 7
+    end bit (1)
 
 While the on tape format has some redundancy, it is not used by raw2mpf; it
 bails on the current program immediately if something is out of order.
 
 
-Example program
----------------
+Examples
+--------
 
 coffee.mpf prints COFFEE on the display, and waits for the user to press GO,
 if that happens the MONITOR is entered through RST 30h.
