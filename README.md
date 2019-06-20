@@ -142,9 +142,9 @@ actual `DATA` bytes and, in closing, a `TAIL_SYNC`. In detail:
     LEAD_SYNC: 4 seconds of 1kHz
 
     HEADER:
-    2 bytes filename
-    2 bytes first_address
-    2 bytes last_address (inclusive)
+    2 bytes filename (little endian)
+    2 bytes first_address (little endian)
+    2 bytes last_address (inclusive) (little endian)
     1 byte checksum (sum of all bytes in data section)
 
     MID_SYNC:
@@ -215,8 +215,10 @@ Captured files can be converted to `.wav` for inspection in, for example,
     $ sox -r 8000 -e unsigned-integer -c 1 -b 8 test.raw test.wav
 
 In a wave editor, the data can be read with relative ease. Two slow waves are a
-`0` and four slow waves are a `1`. Every byte consists of a start bit, `0`, then
-its own bits from 0 to 7, and a stop bit `1`.
+`0` and four slow waves are a `1`. Every byte consists of a start bit, `0`,
+then its own bits from 0 to 7, and a stop bit `1`. So the bits of each byte are
+stored in little endian order.
+
 
 Resources
 ---------
