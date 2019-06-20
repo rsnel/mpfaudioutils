@@ -4,9 +4,10 @@ Transcode MPF-I(B) programs to and from audio
 Introduction
 ------------
 
-The Micro-Professor MPF-I(B) is a single board computer based on the Z80 CPU
-manufactured by Multitech (which became Acer in 1987). For brevity we will call
-this machine by the short name MPF.
+The [Micro-Professor MPF-I(B)](https://en.wikipedia.org/wiki/Micro-Professor_MPF-I)
+is a single board computer from the early eighties manufactured by Multitech
+(which became Acer in 1987). The computer is based on the Zilog Z80 CPU. For
+brevity we will call this machine by the short name MPF.
 
 The computer can communicate with the outside world using:
 * a keyboard
@@ -220,7 +221,6 @@ its own bits from 0 to 7, and a stop bit `1`.
 Resources
 ---------
 
-* [Wikipedia page of the MPF-I](https://en.wikipedia.org/wiki/Micro-Professor_MPF-I)
 * [MPF-I manual](http://www.1000bit.it/support/manuali/multitech/MPF-I-User's-manual.pdf)
 * [Projects for the MPF-I](https://www.sbprojects.net/projects/mpf1/)
 * [Manuals and ROM listings of the MPF-I](http://electrickery.xs4all.nl/comp/mpf1/doc/)
