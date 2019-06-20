@@ -210,7 +210,7 @@ for file extension .mp3`.
 Captured files can be converted to `.wav` for inspection in, for example,
 `audacity(1)`.
 
-$ sox -r 8000 -e unsigned-integer -c 1 -b 8 test.raw test.wav
+    $ sox -r 8000 -e unsigned-integer -c 1 -b 8 test.raw test.wav
 
 In a wave editor, the data can be read with relative ease. Two slow waves are a
 `0` and four slow waves are a `1`. Every byte consists of a start bit, `0`, then
