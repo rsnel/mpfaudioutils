@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <string.h>
 #include <endian.h>
+#include <math.h>
 
 #include "verbose.h"
 
@@ -55,13 +56,10 @@ const char *state_string(state_t state) {
 	}
 }
 
-typedef enum run_e { BAD, SHORT, LONG } run_t;
+typedef enum run_e { SHORT, LONG } run_t;
 
 const char *run_string(run_t run) {
 	switch (run) {
-		case BAD:
-			return "BAD";
-			break;
 		case SHORT:
 			return "SHORT";
 			break;
@@ -76,7 +74,7 @@ const char *run_string(run_t run) {
 void decode_inner(run_t run, int length) {
 	static state_t state = NONE;
 	static int bytes, bits, bit, data_size;
-	static run_t last_run = NONE, last_length = 0;
+	static run_t last_run = SHORT, last_length = 0;
 	static unsigned char header[7], data[MAX_DATA_SIZE], checksum;
 	static unsigned short first_addr, filename;
 
@@ -91,10 +89,6 @@ void decode_inner(run_t run, int length) {
 		memset(header, 0, sizeof(header));
 		memset(data, 0, sizeof(data));
 		VERBOSE("found LEAD_SYNC, loading HEADER");
-	} else if (state != NONE && run == BAD) {
-		// bad runs are not allowed if the state != NONE 
-		fprintf(stderr, "BAD run found in state %s\n", state_string(state));
-		state = NONE;
 	} else switch (state) {
 		case NONE:
 			// if we are in state NONE and there is no LEAD_SYNC
@@ -108,7 +102,7 @@ void decode_inner(run_t run, int length) {
 				} else if (length == 4 && last_run == SHORT && last_length == 4) {
 					bit = 1;
 				} else {
-					fprintf(stderr, "invalid bit found in state HEADER\n");
+					fprintf(stderr, "invalid bit found in state HEADER length = %d, last_length = %d\n", length, last_length);
 					state = NONE;
 					break;
 				}
@@ -254,13 +248,52 @@ void decode_inner(run_t run, int length) {
 }
 
 void decode(double duration) {
+	static int phase = 1;
 	static int length = 0;
-	static run_t run = BAD, cur_run;
+	static double last_duration = 0, last_period = 0, last_goodness = 0;
+	double period, goodness, best_period;
+	static run_t run = SHORT, cur_run;
 
-	if (duration < 0.000354) cur_run = BAD;
-	else if (duration < 0.000707) cur_run = SHORT;
-	else if (duration < 0.001414) cur_run = LONG;
-	else cur_run = BAD;
+	period = duration + last_duration;
+
+	/* the MPF uses signals of 1kHz (period 1ms)
+	 * and signals of 2kHz (period 0.5ms)
+	 *
+	 * if the phase is wrong and the frequency
+	 * changes, a detected signal looks like this
+	 *
+	 *    .75ms
+	 * +---------+
+	 *   _        ____     _
+	 *  / \      /    \   / \
+	 *     \____/      \_/   \_/
+	 *
+	 *     +-----------+-----+
+	 *          1ms      .5ms
+	 * The lengthe of this signal is .75ms and it is
+	 * wrong, the goodness of a period a measure of
+	 * the distance // from the obviously wrong one 
+	 *
+	 * in this way this program attempts to guess
+	 * the correct polarity every time....  */
+	goodness = fabs(log(period/0.00075));
+
+	if (goodness > last_goodness)  best_period = period;
+	else best_period = last_period;
+
+	last_goodness = goodness;
+	last_period = period;
+	last_duration = duration;
+
+	/* only every second call to this function
+	 * should result in the detection of a wave */
+	if (phase++) {
+		phase = 0;
+		return;
+	}
+
+	if (best_period < M_SQRT1_2/1000) cur_run = SHORT;
+	else cur_run = LONG;
 
 	if (cur_run != run) {
 		decode_inner(run, length);
@@ -274,14 +307,14 @@ void decode(double duration) {
 int main(int argc, char *argv[]) {
 	double duration;
 	int last = -1;
-	int val, care = 0;
+	int val;
 
 	verbose_init(argv[0]);
 
 	while ((val = fgetc(stdin)) != EOF) {
 		if (last != -1) {
 			if ((last < 0x80 && val < 0x80) || (last >= 0x80 && val >= 0x80)) {
-				if (care) duration += DURATION;
+				duration += DURATION;
 			} else {
 				/* at this point we know that last != val
 				 * zero crossing is at 127.5 = (255 + 0)/2.
@@ -296,20 +329,9 @@ int main(int argc, char *argv[]) {
 				 *
 				 * t = (127.5-last)*DURATION/(val-last) */
 				double t = (127.5-last)*DURATION/(val - last);
-				if (care) {
-					duration += t;
-					/* we will assume the signal is
-					 * symmetrical, so if it spends 0.001ms
-					 * on one side of the center, it does
-					 * the same on the other side; the
-					 * length of a period is just 2 times
-					 * the length of the measured duration */
-					decode(2*duration);
-					care = 0;
-				} else {
-					duration = DURATION - t;
-					care = 1;
-				}
+				duration += t;
+				decode(duration);
+				duration = DURATION - t;
 			}
 		}
 		last = val;
