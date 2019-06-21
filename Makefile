@@ -1,4 +1,5 @@
 CFLAGS=-Wall
+LDFLAGS=-lm
 
 all: raw2mpf mpf2raw
 
