@@ -17,7 +17,7 @@ The computer can communicate with the outside world using:
 * audio line in, speaker and line out
 
 The MPF includes software to store and retrieve data through the audio interface
-and is originally designed to use a cassetterecorder. However, a normal PC with
+and is originally designed to use a cassette recorder. However, a normal PC with
 line out and mic in can also be used.
 
 This suite of programs enable you to translate between the audio file and a hex
@@ -33,7 +33,7 @@ Write programs to handle text streams, because that is a universal interface."
 Handling audio files
 --------------------
 
-We use raw audio files: unsigned 8 bit with a samplerate of 8kHz.  Other formats
+We use raw audio files: unsigned 8 bit with a sample rate of 8kHz.  Other formats
 must be converted by using, for example, sox(1). See below for some examples.
 
 This text assumes you have a basic understanding of the `TAPE WR` and `TAPE RD`
@@ -44,7 +44,7 @@ Resources at the end of this README.
 The BASIC commands `LOAD` and `SAVE` work in the same way. However, the BASIC
 filename (which is a decimal number from 0 to 255) is the second byte of the
 read filename. The first byte of the real filename is `0xba` for BASIC programs.
-Basic programs are expected to be loaded at `0x18e7`.
+BASIC programs are expected to be loaded at `0x18e7`.
 
 To record a program from your MPF, connect the 'mic' output of the MPF to the
 'mic' input of the PC. Set the MIC gain higher if the signal does not max out
@@ -74,9 +74,9 @@ should suffice. The programs are installed in /usr/local/bin
 Using raw2mpf and mpf2raw
 -------------------------
 
-A list of examples reveals all the usecases of raw2mpf and mpf2raw.
+A list of examples reveal all the usecases of raw2mpf and mpf2raw.
 
-To extract programs from an audiostream you can do:
+To extract programs from an audio stream you can do:
 
     $ raw2mpf < data.raw > programs.mpf
 
@@ -151,14 +151,14 @@ actual `DATA` bytes and, in closing, a `TAIL_SYNC`. In detail:
     2 seconds of 2kHz
 
     DATA:
-    bytes
+    last_address - first_address + 1 bytes of data
 
     TAIL_SYNC:
     2 seconds of 2kHz
 
-All the information is encoding using two tones:
+All the information is encoded using two tones:
 
-    1kHz: one period of tone@8kHz U8, 1ms; `O: FF FF FF FF 00 00 00 00`
+    1kHz: one period of tone @8kHz U8, 1ms; `O: FF FF FF FF 00 00 00 00`
     2kHz: two periods of tone @8kHz U8, 1ms; `X: FF FF 00 00 FF FF 00 00`
 
 Bits are encoded as below:
