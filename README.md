@@ -189,7 +189,7 @@ if that happens the monitor is entered through `RST 30h`.
 The website [https://www.sbprojects.net/projects/mpf1/] contains interesting
 programs for the MPF (with sourcecode and explanations). Each program is
 available as `.asm`, `.hex`, `.lst` and `.mp3` file. I didn't have much luck
-with the `.mp3`, but I have written a small script to translate the `.hex` files
+with playing the `.mp3`, but I have written a small script to translate the `.hex` files
 to `.mpf` files.
 
 For example:
@@ -197,6 +197,9 @@ For example:
     ./sbhex2mpf < dice6.hex > dice6.mpf
 
 `dice6.mpf` can then be loaded in the usual way.
+
+Another option is using `sox(1)` to decode the `.mp3` to `.raw` and to clean the
+recording up by running it through `raw2mpf | mpf2raw`.
 
 ### Sox
 
