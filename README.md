@@ -74,7 +74,7 @@ should suffice. The programs are installed in /usr/local/bin
 Using raw2mpf and mpf2raw
 -------------------------
 
-A list of examples reveal all the usecases of raw2mpf and mpf2raw.
+A list of examples reveal all the use cases of raw2mpf and mpf2raw.
 
 To extract programs from an audio stream you can do:
 
