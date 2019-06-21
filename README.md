@@ -21,8 +21,8 @@ and is originally designed to use a cassetterecorder. However, a normal PC with
 line out and mic in can also be used.
 
 This suite of programs enable you to translate between the audio file and a hex
-representation of the data sent to and from the MPF. It consists of
-raw2mpf, to convert and audio stream to hex text and mpf2raw to do the reverse.
+representation of the data sent to and from the MPF. It mainly consists of
+`raw2mpf`, to convert an audio stream to hex text and `mpf2raw` to do the reverse.
 
 The programs attempt to follow the Unix philosophy (quote from Doug McIlroy
 (2003) in "The Art of Unix programming: Basics of the Unix Philosophy"): "Write
