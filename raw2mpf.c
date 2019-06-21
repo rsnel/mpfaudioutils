@@ -263,13 +263,14 @@ void decode(double duration) {
 	 * changes, a detected signal looks like this
 	 *
 	 *    .75ms
-	 * +---------+
-	 *   _        ____     _
-	 *  / \      /    \   / \
-	 *     \____/      \_/   \_/
+	 *  +-----------+
+	 *    _           _____       _
+	 *   / \         /     \     / \
+	 *  /   \       /       \   /   \   /
+	 *       \_____/         \_/     \_/
 	 *
-	 *     +-----------+-----+
-	 *          1ms      .5ms
+	 *      +---------------+-------+
+	 *             1ms        .5ms
 	 * The lengthe of this signal is .75ms and it is
 	 * wrong, the goodness of a period a measure of
 	 * the distance // from the obviously wrong one 
