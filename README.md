@@ -71,10 +71,10 @@ The commands
 should suffice. The programs are installed in /usr/local/bin
 
 
-Using raw2mpf and mpf2raw
--------------------------
+Using `raw2mpf` and `mpf2raw`
+-----------------------------
 
-A list of examples reveal all the use cases of raw2mpf and mpf2raw.
+A list of examples reveal all the use cases of `raw2mpf` and `mpf2raw`.
 
 To extract programs from an audio stream you can do:
 
@@ -172,7 +172,7 @@ And bytes are encoded as:
     bit 0 t/m bit 7
     end bit (1)
 
-While the on tape format has some redundancy, it is not used by raw2mpf; it
+While the on tape format has some redundancy, it is not used by `raw2mpf`; it
 bails on the current program immediately if something is out of order.
 
 
