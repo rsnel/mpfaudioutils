@@ -300,22 +300,21 @@ void decode(double duration) {
 
 	/* only every second call to this function
 	 * should result in the detection of a wave */
-	if (!ODD) {
-		if (goodnesses[0] > goodnesses[1]) phase = 0;
-		else phase = 1;
 
+	if (ODD) return;
 
-		if (periods[phase] < 0.00075) cur_run = SHORT;
-		else cur_run = LONG;
+	if (goodnesses[0] > goodnesses[1]) phase = 0;
+	else phase = 1;
 
-		if (cur_run != run) {
-			decode_inner(run, length);
-			run = cur_run;
-			length = 0;
-		}
+	cur_run = (periods[phase] < 0.00075)?SHORT:LONG;
 
-		length++;
-	}
+	length++; // increment length of current run
+
+	if (cur_run == run) return;
+
+	decode_inner(run, length);
+	run = cur_run;
+	length = 0;
 }
 
 int main(int argc, char *argv[]) {
