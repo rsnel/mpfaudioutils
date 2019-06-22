@@ -225,10 +225,12 @@ then its own bits from 0 to 7, and a stop bit `1`. So the bits of each byte are
 stored in little endian order.
 
 For example, a 1 bit looks like this
+
      _   _   _   _   ___     ___     ___     ___
     / \_/ \_/ \_/ \_/   \___/   \___/   \___/   \___/
 
 and a 0 bit looks like
+
      _   _   _   _   _   _   _   _   ___     ___     
     / \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \___/   \___/
 
