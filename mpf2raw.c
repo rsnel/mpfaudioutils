@@ -125,17 +125,17 @@ int check_format_and_mangle(char *line, int lineno) {
 	len = strlen(line);
 
 	if (len == sizeof(line) - 1) {
-		WARNING("line %d of input is too long, skipping", lineno);
+		ERROR("line %d of input is too long, skipping", lineno);
 		return -1;
 	}
 
 	if (len < 13) {
-		WARNING("line %d of input is too short, skipping", lineno);
+		ERROR("line %d of input is too short, skipping", lineno);
 		return -1;
 	}
 
 	if (!(len%2)) {
-		WARNING("length of input line %d (including \\n) is EVEN, skipping", lineno);
+		ERROR("length of input line %d (including \\n) is EVEN, skipping", lineno);
 		return -1;
 	}
 
@@ -143,19 +143,19 @@ int check_format_and_mangle(char *line, int lineno) {
 	do {
 		if (ptr - line == 4) {
 			if (*ptr != '/') {
-				WARNING("illegal character at position 5 in line %d of input "
+				ERROR("illegal character at position 5 in line %d of input "
 						"must be '/', skipping", lineno);
 				return -1;
 			}
 		} else if (ptr - line == 9) {
 			if (*ptr != ':') {
-				WARNING("illegal character at position 10 in line %d of input "
+				ERROR("illegal character at position 10 in line %d of input "
 						"must be ':', skipping", lineno);
 				return -1;
 			}
 		} else if (ptr - line == len - 1) {
 			if (*ptr != '\n') {
-				WARNING("illegal character at last position in line %d of input "
+				ERROR("illegal character at last position in line %d of input "
 						"must be '\n', skipping", lineno);
 				return -1;
 
@@ -167,7 +167,7 @@ int check_format_and_mangle(char *line, int lineno) {
 		} else if (*ptr >= 'a' && *ptr <= 'f') {
 			*ptr -= 'a' - 10;
 		} else {
-			WARNING("illegal character at position %ld in line %d of input "
+			ERROR("illegal character at position %ld in line %d of input "
 					"must be a hex digit", ptr - line , lineno);
 			return -1;
 		}
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
 
 	verbose_init(argv[0]);
 
-	// each line is a program, if there is an error, just emit a WARNING and
+	// each line is a program, if there is an error, just emit an ERROR and
 	// go to the next line
 	while (fgets(line, sizeof(line), stdin)) {
 		lineno++;
