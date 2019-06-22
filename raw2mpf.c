@@ -247,14 +247,25 @@ void decode_inner(run_t run, int length) {
 
 }
 
+#define ODD (count%2)
+// the first time this function is called, it is notified
+// of a rising edge, the second time of a falling edge etc
 void decode(double duration) {
-	static int phase = 1;
+	// count counts the number of times this function was called
+	// if (postincrement) count is odd, then we were called at a rising edge
+	// and if (postincrement) count is even, then we were called at a
+	// falling edge
+	static int count = 0;
+	int phase;
 	static int length = 0;
-	static double last_duration = 0, last_period = 0, last_goodness = 0;
-	double period, goodness, best_period;
-	static run_t run = SHORT, cur_run;
+	static double periods[2] = { 0, 0 }, durations[2] = { 0, 0 }, goodnesses[2] = { 0, 0 };
+	static run_t run = SHORT;
+	run_t cur_run;
 
-	period = duration + last_duration;
+	count++;
+
+	durations[ODD] = duration;
+	periods[ODD] = durations[0] + durations[1];
 
 	/* the MPF uses signals of 1kHz (period 1ms)
 	 * and signals of 2kHz (period 0.5ms)
@@ -285,68 +296,62 @@ void decode(double duration) {
 	 *
 	 * in this way this program attempts to guess
 	 * the correct polarity every time....  */
-	goodness = fabs(log(period/0.00075));
-
-	if (goodness > last_goodness)  best_period = period;
-	else best_period = last_period;
-
-	last_goodness = goodness;
-	last_period = period;
-	last_duration = duration;
+	goodnesses[ODD] = fabs(log(periods[ODD]/0.00075));
 
 	/* only every second call to this function
 	 * should result in the detection of a wave */
-	if (phase++) {
-		phase = 0;
-		return;
+	if (!ODD) {
+		if (goodnesses[0] > goodnesses[1]) phase = 0;
+		else phase = 1;
+
+
+		if (periods[phase] < 0.00075) cur_run = SHORT;
+		else cur_run = LONG;
+
+		if (cur_run != run) {
+			decode_inner(run, length);
+			run = cur_run;
+			length = 0;
+		}
+
+		length++;
 	}
-
-	if (best_period < M_SQRT1_2/1000) cur_run = SHORT;
-	else cur_run = LONG;
-
-	if (cur_run != run) {
-		decode_inner(run, length);
-		run = cur_run;
-		length = 0;
-	}
-
-	length++;
 }
 
 int main(int argc, char *argv[]) {
-	double duration;
-	int last = -1;
+	double duration = 0;
+	int last = 0; // this ensures that decode() is first called on a rising edge
 	int val;
 
 	verbose_init(argv[0]);
 
 	while ((val = fgetc(stdin)) != EOF) {
-		if (last != -1) {
-			if ((last < 0x80 && val < 0x80) || (last >= 0x80 && val >= 0x80)) {
-				duration += DURATION;
-			} else {
-				/* at this point we know that last != val
-				 * zero crossing is at 127.5 = (255 + 0)/2.
-				 * do a linear approximation to find time of
-				 * zero crossing
-				 *
-				 * t is time of the crossing
-				 *
-				 * (val - last)/DURATION*t + last = 127.5
-				 *
-				 * =>
-				 *
-				 * t = (127.5-last)*DURATION/(val-last) */
-				double t = (127.5-last)*DURATION/(val - last);
-				duration += t;
-				decode(duration);
-				duration = DURATION - t;
-			}
+		if ((last < 0x80 && val < 0x80) || (last >= 0x80 && val >= 0x80)) {
+			duration += DURATION;
+		} else {
+			/* at this point we know that last != val
+			 * zero crossing is at 127.5 = (255 + 0)/2.
+			 * do a linear approximation to find time of
+			 * zero crossing
+			 *
+			 * t is time of the crossing
+			 *
+			 * (val - last)/DURATION*t + last = 127.5
+			 *
+			 * =>
+			 *
+			 * t = (127.5-last)*DURATION/(val-last) */
+			double t = (127.5-last)*DURATION/(val - last);
+			duration += t;
+			decode(duration);
+			duration = DURATION - t;
 		}
 		last = val;
 	}
 
-	decode(0); // to detect the last run
+	// end with 1 LONG wave to force detection of the TAIL_SYNC
+	decode(8*DURATION);
+	decode(8*DURATION);
 
 	exit(0);
 }
