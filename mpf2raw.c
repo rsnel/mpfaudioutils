@@ -17,7 +17,6 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <endian.h>
 #include <string.h>
 #include <assert.h> // we use assert to test for things that can't happen
 
@@ -74,11 +73,9 @@ void byte(unsigned char byte) {
 }
 
 void word(unsigned short word) {
-	unsigned short le = htole16(word);
-	
 	// output the bytes in little endian order
-	byte(le);
-	byte(le>>8);
+	byte(word&0xff);
+	byte(word>>8);
 }
 
 unsigned char calc_checksum(unsigned char *buf, unsigned short buf_size) {
