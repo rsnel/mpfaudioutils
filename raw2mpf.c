@@ -259,21 +259,29 @@ void decode(double duration) {
 	/* the MPF uses signals of 1kHz (period 1ms)
 	 * and signals of 2kHz (period 0.5ms)
 	 *
-	 * if the phase is wrong and the frequency
-	 * changes, a detected signal looks like this
+	 * if the phase is wrongly interpreted, periods
+	 * of .5ms, .75ms and 1ms are detected;
+	 * if the phase is correctly interpreted, only
+	 * periods of .5 and 1ms are detected
 	 *
-	 *    .75ms
-	 *  +-----------+
-	 *    _           _____       _
-	 *   / \         /     \     / \
-	 *  /   \       /       \   /   \   /
-	 *       \_____/         \_/     \_/
+	 * in the below illustration, the phase is negative ( \ first )
 	 *
-	 *      +---------------+-------+
-	 *             1ms        .5ms
-	 * The lengthe of this signal is .75ms and it is
-	 * wrong, the goodness of a period a measure of
-	 * the distance // from the obviously wrong one 
+	 *  wrong phase interpretation
+	 *
+	 *      .75ms       .75m       .5ms     .75ms          1ms
+	 *  +-----------+-----------+-------+-----------+----------------+
+	 *  | _         | _____     | _     | _         | ______         |
+	 *  |/ \        |/     \    |/ \    |/ \        |/      \        |
+	 *  /   \       /       \   /   \   /   \       /        \       /
+	 *      |\_____/        |\_/    |\_/    |\_____/         |\_____/
+	 *      |               |       |       |                |
+	 *  ----+---------------+-------+-------+----------------+--------
+	 *             1ms        .5ms    .5ms         1ms
+	 *
+	 * correct phase interpretation
+	 *
+	 * the goodness of a period is a measure of
+	 * the distance from 75ms
 	 *
 	 * in this way this program attempts to guess
 	 * the correct polarity every time....  */
