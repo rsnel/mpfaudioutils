@@ -82,7 +82,7 @@ void decode_inner(run_t run, int length) {
 	// accepted if it is longer than 1 second
 	// a LEAD_SYNC always resets the state machine
 	if (run == LONG && length > 1000) {
-		if (state != NONE) fprintf(stderr, "LEAD_SYNC found while in state %s\n", state_string(state));
+		if (state != NONE) ERROR("LEAD_SYNC found while in state %s", state_string(state));
 		bytes = 7; // expecting 7 bytes
 		bits = -1; // expecting bit 0 (startbit)
 		state = HEADER;
@@ -102,7 +102,7 @@ void decode_inner(run_t run, int length) {
 				} else if (length == 4 && last_run == SHORT && last_length == 4) {
 					bit = 1;
 				} else {
-					fprintf(stderr, "invalid bit found in state HEADER length = %d, last_length = %d\n", length, last_length);
+					ERROR("invalid bit found in state HEADER length = %d, last_length = %d", length, last_length);
 					state = NONE;
 					break;
 				}
@@ -110,7 +110,7 @@ void decode_inner(run_t run, int length) {
 				if (bits == 0) {
 					// start bit must be 0
 					if (bit != 0) {
-						fprintf(stderr, "invalid start bit found, must be 0 found 1\n");
+						ERROR("invalid start bit found, must be 0 found 1");
 						state = NONE;
 						break;
 					}
@@ -119,7 +119,7 @@ void decode_inner(run_t run, int length) {
 					//printf("%02x\n", header[7-bytes]);
 					// stop bit must be 1
 					if (bit != 1) {
-						fprintf(stderr, "invalid stop bit found, must be 1 found 0\n");
+						ERROR("invalid stop bit found, must be 1 found 0");
 						state = NONE;
 						break;
 					}
@@ -138,7 +138,7 @@ void decode_inner(run_t run, int length) {
 					checksum = header[6];
 					data_size = bytes = last_addr - first_addr + 1;
 					if (bytes > MAX_DATA_SIZE) {
-						fprintf(stderr, "data size %d > %d bytes, not supported; increase MAX_DATA_SIZE", bytes, MAX_DATA_SIZE);
+						ERROR("data size %d > %d bytes, not supported; increase MAX_DATA_SIZE", bytes, MAX_DATA_SIZE);
 						state = NONE;
 						break;
 					}
@@ -156,7 +156,7 @@ void decode_inner(run_t run, int length) {
 				state = FIRST_DATA;
 				VERBOSE("found MID_SYNC, loading DATA (%d bytes)", data_size);
 			} else {
-				fprintf(stderr, "invalid run in MID_SYNC\n");
+				ERROR("invalid run in MID_SYNC");
 				state = NONE;
 			}
 			break;
@@ -171,12 +171,12 @@ void decode_inner(run_t run, int length) {
 				} else if (length == 2) {
 					last_length = 8;
 				} else {
-					fprintf(stderr, "invalid bit found in state FIRST_DATA\n");
+					ERROR("invalid bit found in state FIRST_DATA");
 					state = NONE;
 					break;
 				}
 			} else {
-				fprintf(stderr, "invalid run in FIRST_DATA\n");
+				ERROR("invalid run in FIRST_DATA");
 				state = NONE;
 				break;
 			}
@@ -188,7 +188,7 @@ void decode_inner(run_t run, int length) {
 				} else if (length == 4 && last_run == SHORT && last_length == 4) {
 					bit = 1;
 				} else {
-					fprintf(stderr, "invalid bit found in state HEADER\n");
+					ERROR("invalid bit found in state HEADER");
 					state = NONE;
 					break;
 				}
@@ -196,7 +196,7 @@ void decode_inner(run_t run, int length) {
 				if (bits == 0) {
 					// start bit must be 0
 					if (bit != 0) {
-						fprintf(stderr, "invalid start bit found, must be 0 found 1\n");
+						ERROR("invalid start bit found, must be 0 found 1");
 						state = NONE;
 						break;
 					}
@@ -205,7 +205,7 @@ void decode_inner(run_t run, int length) {
 					//printf("%02x\n", data[data_size-bytes]);
 					// stop bit must be 1
 					if (bit != 1) {
-						fprintf(stderr, "invalid stop bit found, must be 1 found 0\n");
+						ERROR("invalid stop bit found, must be 1 found 0");
 						state = NONE;
 						break;
 					}
@@ -217,7 +217,7 @@ void decode_inner(run_t run, int length) {
 				}
 				if (bytes == 0) {
 					if (checksum != 0x00) {
-						fprintf(stderr, "invalid checksum\n");
+						ERROR("invalid checksum");
 						state = NONE;
 						break;
 					}
@@ -237,7 +237,7 @@ void decode_inner(run_t run, int length) {
 				VERBOSE("found TAIL_SYNC");
 				state = NONE;
 			} else {
-				fprintf(stderr, "invalid run in TAIL_SYNC\n");
+				ERROR("invalid run in TAIL_SYNC");
 				state = NONE;
 			}
 			break;
