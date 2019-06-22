@@ -217,11 +217,23 @@ Captured files can be converted to `.wav` for inspection in, for example,
 
     $ sox -r 8000 -e unsigned-integer -c 1 -b 8 test.raw test.wav
 
+### Reading the audio data by eye
+
 In a wave editor, the data can be read with relative ease. Two slow waves are a
 `0` and four slow waves are a `1`. Every byte consists of a start bit, `0`,
 then its own bits from 0 to 7, and a stop bit `1`. So the bits of each byte are
 stored in little endian order.
 
+For example, a 1 bit looks like this
+     _   _   _   _   ___     ___     ___     ___
+    / \_/ \_/ \_/ \_/   \___/   \___/   \___/   \___/
+
+and a 0 bit looks like
+     _   _   _   _   _   _   _   _   ___     ___     
+    / \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \___/   \___/
+
+to decode the audio, you only have to count the slow waves
+and view the fast wave as a separator.
 
 Resources
 ---------
