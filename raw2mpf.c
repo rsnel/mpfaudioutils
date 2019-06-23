@@ -65,41 +65,36 @@ const char *state_string(state_t state) {
 
 typedef enum run_e { SHORT, LONG } run_t;
 
-const char *run_string(run_t run) {
-	switch (run) {
-		case SHORT:
-			return "SHORT";
-			break;
-		case LONG:
-			return "LONG";
-			break;
-		default:
-			assert(0);
-	}
-}
-
-// this macro is used in decode() and in decode_inner()
+// this macro is used in decode_wave() and in decode_run()
 #define ODD (count%2)
 
-void decode_inner(run_t run, int length, int polarity) {
+#define PREV_LENGTH (lengths[!ODD])
+
+// the first time this function is called, it is notified
+// of a SHORT run, the second time of a LONG run etc
+// the variable count keeps track of this
+void decode_run(int length, int polarity) {
 	static int count = 0;
 	static state_t state = NONE;
 	static int bits, bit, data_size;
-	static run_t last_run = LONG, last_length = 1;
+	static int lengths[2] = { 1, 0 };
 	static unsigned char header[7], data[MAX_DATA_SIZE], checksum;
 	static unsigned short first_addr, filename;
 	static unsigned char *ptr, *end_ptr;
 
 	count++;
 
-	// this function is always called with alternating values of
-	// run, the code below this assert() relies on it
-	assert(last_run != run);
+	/* of a LONG run is signalled ODD == false and if
+	 * a SHORT run is signalled ODD = true
+	 *
+	 * the length of the last LONG run is stored in lengths[0]
+	 * and the length of the last SHORT run is stored in lengths[1] */
+	lengths[ODD] = length;
 
-	// according to MPF-1 monitor source listing: LEAD_SYNC is
-	// accepted if it is longer than 1 second a LEAD_SYNC always
-	// resets the state machine
-	if (run == LONG && length > 1000) {
+	/* according to MPF-1 monitor source listing: LEAD_SYNC is
+	 * accepted if it is longer than 1 second a LEAD_SYNC always
+	 * resets the state machine */
+	if (!ODD && lengths[ODD] > 1000) {
 		if (state != NONE) ERROR("LEAD_SYNC found while in state %s", state_string(state));
 		ptr = header;
 		end_ptr = header + 7; // expecting 7 bytes
@@ -107,11 +102,15 @@ void decode_inner(run_t run, int length, int polarity) {
 		state = HEADER_SEPARATOR;
 		memset(header, 0, sizeof(header));
 		memset(data, 0, sizeof(data));
-		VERBOSE("found %.1fs LEAD_SYNC, loading HEADER, %s polarity", length/1000., polarity?"positive":"negative");
-	} else switch (state) {
+		VERBOSE("found %.1fs LEAD_SYNC, loading HEADER, %s polarity", lengths[ODD]/1000., polarity?"positive":"negative");
+		return;
+
+	}
+
+	switch (state) {
 		case NONE:
 			/* if we are in state NONE and there is no LEAD_SYNC
-			 * then we stay in state NONE */
+			 * then we do nothing */
 			break;
 		case FIRST_DATA: /* called with LONG run */
 			/* the SHORT run of FIRST_DATA is contained in the
@@ -122,15 +121,15 @@ void decode_inner(run_t run, int length, int polarity) {
 			 * if length == 2, then last_length will be set to 8
 			 * if length == 4, then last length will be set to 4
 			 * otherwise both will be invalid */
-			last_length = -2*length + 12;
+			PREV_LENGTH = -2*length + 12;
 			state = DATA;
 			/* fall through to DATA */
 		case DATA:   /* called with LONG run */
 		case HEADER: /* called with LONG run */
-			if (length == 2 && last_length == 8) bit = 0;
-			else if (length == 4 && last_length == 4) bit = 1;
+			if (length == 2 && PREV_LENGTH == 8) bit = 0;
+			else if (length == 4 && PREV_LENGTH == 4) bit = 1;
 			else {
-				ERROR("invalid bit found in state %s length = %d, last_length = %d", state_string(state), length, last_length);
+				ERROR("invalid bit found in state %s length = %d, last_length = %d", state_string(state), length, PREV_LENGTH);
 				state = NONE;
 				break;
 			}
@@ -195,7 +194,7 @@ void decode_inner(run_t run, int length, int polarity) {
 			// strictly speaking the length of MID_SYNC can't be
 			// known at this point, because the last 4 or 8 waves
 			// belong to the bit following the sync
-			if (length >= 2900) {  /* use this, so that if the duration is
+			if (length>= 2900) {  /* use this, so that if the duration is
 						* shorter, the time in seconds
 						* rounded to one decimal is
 						* actually smaller than 1.5s,
@@ -219,14 +218,12 @@ void decode_inner(run_t run, int length, int polarity) {
 			state = NONE;
 			break;
 	}
-
-	last_run = run; last_length = length;
-
 }
 
 // the first time this function is called, it is notified
 // of a rising edge, the second time of a falling edge etc
-void decode(double duration) {
+// the variable count keeps track of this
+void decode_wave(double duration) {
 	// count counts the number of times this function was called
 	// if (postincrement) count is odd, then we were called at a rising edge
 	// and if (postincrement) count is even, then we were called at a
@@ -235,7 +232,7 @@ void decode(double duration) {
 	int polarity;
 	static int length = 0;
 	static double periods[2] = { 0, 0 }, durations[2] = { 0, 0 }, goodnesses[2] = { 0, 0 };
-	static run_t run = SHORT;
+	static run_t run = SHORT; // this ensures that decode_run is called first with a SHORT run
 	run_t cur_run;
 
 	count++;
@@ -292,7 +289,7 @@ void decode(double duration) {
 
 	if (cur_run == run) return;
 
-	decode_inner(run, length, polarity);
+	decode_run(length, polarity);
 
 	run = cur_run;
 	length = 0;
@@ -300,7 +297,7 @@ void decode(double duration) {
 
 int main(int argc, char *argv[]) {
 	double duration = 0;
-	int last = 0; // this ensures that decode() is first called on a rising edge
+	int last = 0; // this ensures that decode_wave() is first called on a rising edge
 	int val;
 
 	verbose_init(argv[0]);
@@ -323,15 +320,15 @@ int main(int argc, char *argv[]) {
 			 * t = (127.5-last)*DURATION/(val-last) */
 			double t = (127.5-last)*DURATION/(val - last);
 			duration += t;
-			decode(duration);
+			decode_wave(duration);
 			duration = DURATION - t;
 		}
 		last = val;
 	}
 
 	// end with 1 LONG wave to force detection of the TAIL_SYNC
-	decode(8*DURATION);
-	decode(8*DURATION);
+	decode_wave(8*DURATION);
+	decode_wave(8*DURATION);
 
 	exit(0);
 }
